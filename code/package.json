@@ -2,9 +2,11 @@
   "name": "element-desk",
   "version": "0.0.1",
   "description": "A desktop app for website design",
-  "main": "index.js",
+  "main": "boot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "sibilisp -s src/ -d compiled/ -f js",
+    "start": "electron ."
   },
   "repository": {
     "type": "git",
@@ -21,5 +23,10 @@
   "bugs": {
     "url": "https://github.com/urbandrone/elementdesk/issues"
   },
-  "homepage": "https://github.com/urbandrone/elementdesk#readme"
+  "homepage": "https://github.com/urbandrone/elementdesk#readme",
+  "devDependencies": {
+    "electron": "^15.0.0",
+    "electron-builder": "^22.11.7",
+    "sibilisp": "^0.6.8"
+  }
 }

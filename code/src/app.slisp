@@ -1,0 +1,15 @@
+(defconstant *subject* "ElementDesk")
+
+(defun greet-by (greeting)
+  (#(subject)
+    (+ greeting " " subject)))
+
+(defun run ()
+  (let* ((greet (greet-by "Hello and welcome to"))
+         (textn (.create-text-node document (greet *subject*))))
+    (.insert-before 
+      (getf document 'body)
+      textn
+      (getf document 'body 'first-element-child))))
+
+(run)
