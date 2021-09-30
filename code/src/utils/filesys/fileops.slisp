@@ -1,0 +1,189 @@
+(use "sibilisp/prelude" task map chain show)
+(use-all "fs-extra" :as fse)
+
+
+
+;;; GENERAL INTERAL UTILITIES
+
+
+
+;;; FILE SYSTEM FUNCTIONS
+(provide
+  (defun path-exists? (fpath)
+    (when (not (filepath.is fpath))
+      (error! "Received an invalid filepath: " (show fpath)))
+    (task (#(rej res)
+            (.path-exists fse
+                          (.extract fpath) 
+                          (#(err exists?)
+                            (cond ((exists? err) (rej err))
+                                  :else (res exists?))))))))
+
+(provide
+  (defun is-dir? (fpath)
+    (|>
+      (path-exists? fpath)
+      (map (#(exists?)
+            (and exists?
+                 (|> (.stat-sync fse (.extract fpath))
+                     (.is-directory))))))))
+
+(provide
+  (defun is-file? (fpath)
+    (|>
+      (path-exists? fpath)
+      (map (#(exists?)
+            (and exists?
+                 (|> (.stat-sync fse (.extract fpath))
+                     (.is-file))))))))
+
+(provide
+  (defun list-dir (fpath)
+    (|>
+      (is-dir? fpath)
+      (chain (#(dir?)
+              (if dir?
+                  (task (#(rej res)
+                          (.readdir fse
+                                    (.extract fpath)
+                                    (hash :encoding 'utf8)
+                                    (#(err files)
+                                      (cond ((exists? err) (rej err))
+                                            :else (res files))))))
+                  (task.of (list))))))))
+
+(provide
+  (defun read-file (fpath)
+    (|>
+      (is-file? fpath)
+      (chain (#(file?)
+              (if file?
+                  (task (#(rej res)
+                          (.read-file fse
+                                      (.extract fpath)
+                                      (hash :encoding 'utf8)
+                                      (#(err data)
+                                        (cond ((exists? err) (rej err))
+                                              :else (res data))))))
+                  (task.of "")))))))
+
+(provide
+  (defun write-file (fpath data mode)
+    (default mode 0o2775)
+    (|>
+      (is-file? fpath)
+      (chain (#(file?)
+              (if file?
+                  (task (#(rej res)
+                          (.write-file fse
+                                       (.extract fpath)
+                                       data
+                                       (hash :encoding 'utf8
+                                             :mode mode)
+                                       (#(err)
+                                        (cond ((exists? err) (rej err))
+                                              :else (res fpath))))))
+                  (task.zero (.extract fpath))))))))
+
+(provide
+  (defun copy-dir (source-fpath dest-fpath)
+    (|>
+      (is-dir? fpath)
+      (chain (#(dir?)
+              (if dir?
+                  (task (#(rej res)
+                          (.copy fse
+                                 (.extract source-fpath)
+                                 (.extract dest-fpath)
+                                 (#(err)
+                                  (cond ((exists? err) (rej err))
+                                        :else (res true))))))
+                                 
+                  (task.of false)))))))
+
+(provide
+  (defun copy-file (source-fpath dest-fpath)
+    (|>
+      (is-file? fpath)
+      (chain (#(file?)
+              (if file?
+                  (task (#(rej res)
+                          (.copy fse
+                                 (.extract source-fpath)
+                                 (.extract dest-fpath)
+                                 (#(err)
+                                  (cond ((exists? err) (rej err))
+                                        :else (res fpath))))))
+                                 
+                  (task.zero (.extract source-fpath))))))))
+
+(provide
+  (defun create-dir (fpath mode)
+    (default mode 0o2775)
+    (|> 
+      (path-exists? fpath)
+      (chain (#(exists?)
+              (if (not exists?)
+                  (task (#(rej res)
+                          (.ensure-dir fse
+                                       (.extract fpath)
+                                       mode
+                                       (#(err)
+                                        (cond ((exists? err) (rej err))
+                                              :else (res fpath))))))
+                  (task.of fpath)))))))
+
+(provide
+  (defun create-file (fpath mode)
+    (default mode 0o2775)
+    (|> 
+      (path-exists? fpath)
+      (chain (#(exists?)
+              (if (not exists?)
+                  (task (#(rej res)
+                          (.ensure-file fse
+                                        (.extract fpath)
+                                        mode
+                                        (#(err)
+                                          (cond ((exists? err) (rej err))
+                                                :else (res fpath))))))
+                  (task.of fpath)))))))
+
+(provide
+  (defun empty-dir (fpath)
+    (|>
+      (is-dir? fpath)
+      (chain (#(dir?)
+              (if dir?
+                  (task (#(rej res)
+                          (.empty fse
+                                  (.extract fpath)
+                                  (#(err)
+                                    (cond ((exists? err) (rej err))
+                                          :else (res fpath))))))
+                  (task.zero (.extract fpath))))))))
+
+(provide
+  (defun delete-dir (fpath)
+    (|>
+      (empty-dir fpath)
+      (chain (#(p)
+              (task (#(rej res)
+                      (.remove fse
+                               (.extract p)
+                               (#(err)
+                                (cond ((exists? err) (rej err))
+                                      :else (res p)))))))))))
+
+(provide
+  (defun delete-file (fpath)
+    (|>
+      (is-file? fpath)
+      (chain (#(file?)
+              (if file?
+                  (task (#(rej res)
+                          (.remove fse
+                                   (.extract fpath)
+                                   (#(err)
+                                    (cond ((exists? err) (rej err))
+                                          :else (res fpath))))))))))))

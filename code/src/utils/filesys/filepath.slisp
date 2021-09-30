@@ -1,0 +1,80 @@
+(use "path" :as pth)
+
+
+
+;;;; A FILESYSTEM PATH HELPER TYPE
+;;;; Does auto-normalization and conversion from unix-type
+;;;; delimited paths to platform specific paths.
+
+
+
+;;; INTERNAL HELPERS
+(defun path-normalize (path)
+  (|> path
+      (.split "/")
+      (.join (getf pth 'delimiter))
+      (#(p) (.normalize pth p))))
+
+
+
+;;; EXPORTED TYPE
+(provide
+  (deftype filepath (path is-abs?)))
+
+(setf filepath 'of (#(segment)
+                    (let* ((path (path-normalize segment)))
+                          (abs? (.is-absolute pth path))
+                      (filepath path abs?))))
+                
+(setf filepath 'lift (#(segment)
+                      (cond ((not (string? segment)))
+                            (error! "(filepath): Path segment not a string " segment)
+                            :else (filepath.of segment))))
+
+(setf filepath 'cwd (#()
+                      (filepath.of (.cwd process))))
+
+(defmethod filepath equals (fpath)
+  (and (filepath.is fpath)
+       (eql? (getf this 'is-abs?) (getf fpath 'is-abs?))
+       (eql? (getf this 'path) (getf fpath 'path))))
+
+(defmethod filepath lt (fpath)
+  (cond ((not (filepath.is fpath))
+         (error! "(filepath.lt): Cannot compare with non-filepath objects"))
+        :else (and (not (getf this 'is-abs?))
+                   (getf fpath 'is-abs?))))
+
+(defmethod filepath lte (fpath)
+  (cond ((not (filepath.is fpath))
+         (error! "(filepath.lte): Cannot compare with non-filepath objects"))
+        :else (or (and (not (getf this 'is-abs?))
+                       (getf fpath 'is-abs?))
+                  (and (eql? (getf this 'is-abs?)
+                             (getf fpath 'is-abs?))
+                       (eql? (getf this 'path)
+                             (getf fpath 'path))))))
+
+(defmethod filepath gt (fpath)
+  (cond ((not (filepath.is fpath))
+         (error! "(filepath.gt): Cannot compare with non-filepath objects"))
+        :else (and (not (getf fpath 'is-abs?))
+                   (getf this 'is-abs?))))
+
+(defmethod filepath gte (fpath)
+  (cond ((not (filepath.is fpath))
+         (error! "(filepath.gte): Cannot compare with non-filepath objects"))
+        :else (or (and (not (getf fpath 'is-abs?))
+                       (getf this 'is-abs?))
+                  (and (not (getf this 'is-abs?))
+                       (getf fpath 'is-abs?)))))
+                
+(defmethod filepath concat (fpath)
+  (cond ((not (filepath.is fpath))
+         (error! "(filepath.concat): Cannot concat with non-filepath objects"))
+        ((.gte this fpath)
+         (filepath.of (+ (getf this 'path) "/" (getf fpath 'path))))
+        :else (filepath.of (+ (getf fpath 'path) "/" (getf this 'path)))))
+
+(defmethod filepath extract ()
+  (getf this 'path))

@@ -1,0 +1,12 @@
+(use "superfine" (h :as h-el) text)
+
+(provide
+  (defun h (tag props ...childs)
+    (h-el tag 
+          props 
+          (.map childs (#(c)
+                        (cond ((not (exists? c)) (text ""))
+                              ((string? c) (text c))
+                              ((number? c) (text (as-string c)))
+                              ((function? c) (c h tag props)) ; pass context info through
+                              :else c))))))
