@@ -1,0 +1,46 @@
+(namespace ed)
+
+;;; APP MACROS
+(macro make-message (type ...payload)
+  (when (< (length payload) 2)
+    (assign payload (ternary (< (length payload) 1) (list) (first payload))))
+  `(hash :type @type :payload @payload))
+
+(macro expose-port ())
+
+
+;;; MAIN MACROS
+(macro provide-port (ctor win ...requests)
+  (with-gensyms (ports port-m port-r event)
+    (defvar sbody (.map requests 
+                        (#(r)
+                          (let* ((type (first (getf (first (getf r 'contents)) 'contents)))
+                                 (args (rest (getf (first (getf r 'contents)) 'contents)))
+                                 (body (rest (getf r 'contents)))
+                                 (vals (map args (#(a) `(getf @event 'data (quote @a))))))
+                            `(@type 
+                              (call (#(...@args)
+                                      (pipe ...@body 
+                                            (.run-task (#(err)
+                                                        (.post-message @port-m
+                                                                      (hash :type 'error
+                                                                            :data err)))
+                                                      (#(data)
+                                                        (.post-message @port-m
+                                                                      (hash :type 'ok
+                                                                            :data data))))))
+                                    ...@vals))))))
+    `(let* ((@ports (new @ctor))
+            (@port-r (getf @ports 'port1))
+            (@port-m (getf @ports 'port2)))
+      (.on @port-m 
+           'message 
+           (#(@event)
+            (switch (getf @event 'data 'type)
+              ...@sbody
+              (:default (nil)))))
+      (.start @port-m)
+      (.post-message (getf @win 'web-contents)
+                     'send-port
+                     (nil)
+                     (list @port-r)))))

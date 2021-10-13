@@ -1,0 +1,9 @@
+{
+  "root": "widgets/",
+  "widgets": [
+    {
+      "id": 1,
+      "path": "accordion/widget.json"
+    }
+  ]
+}

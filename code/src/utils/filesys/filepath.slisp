@@ -1,4 +1,4 @@
-(use "path" :as pth)
+(use-all "path" pth)
 
 
 
@@ -12,8 +12,8 @@
 (defun path-normalize (path)
   (|> path
       (.split "/")
-      (.join (getf pth 'delimiter))
-      (#(p) (.normalize pth p))))
+      (.join (getf pth 'sep))
+      ((#(p) (.normalize pth p)))))
 
 
 
@@ -22,17 +22,22 @@
   (deftype filepath (path is-abs?)))
 
 (setf filepath 'of (#(segment)
-                    (let* ((path (path-normalize segment)))
-                          (abs? (.is-absolute pth path))
+                    (let* ((path (path-normalize segment))
+                           (abs? (.is-absolute pth path)))
                       (filepath path abs?))))
                 
 (setf filepath 'lift (#(segment)
-                      (cond ((not (string? segment)))
-                            (error! "(filepath): Path segment not a string " segment)
+                      (cond ((not (string? segment))
+                             (error! "(filepath): Path segment not a string " segment))
                             :else (filepath.of segment))))
 
 (setf filepath 'cwd (#()
                       (filepath.of (.cwd process))))
+
+(setf filepath 'dir-name (#(fpath)
+                          (when (not (filepath.is fpath))
+                            (error! "(filepath.dir-name): Received non filepath object"))
+                          (filepath.of (.dirname pth (.extract fpath)))))
 
 (defmethod filepath equals (fpath)
   (and (filepath.is fpath)

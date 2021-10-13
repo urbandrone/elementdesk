@@ -1,0 +1,8 @@
+(setf window 
+      'onmessage 
+      (#(event)
+        (.log console event)
+        (when (and (eql? (getf event 'source) window)
+                   (eql? (getf event 'data) 'main-port))
+          (let ((port (getf event 'ports 0)))
+            (.post-message port (hash :get-widgets true))))))

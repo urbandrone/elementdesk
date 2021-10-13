@@ -1,0 +1,18 @@
+(use "./data/widgets" get-all get-by-tags get-by-id get-by-name)
+
+; (defconstant **widget-id** 1)
+; (defun run-test (fail ok)
+;   (|>
+;     (get-by-id 1)
+;     (.run-task fail
+;                (#-> (getf 'name) (ok)))))
+
+
+(defun get-widgets (fail ok)
+  (|>
+    (get-all)
+    (.run-task fail ok)))
+  
+
+(provide-all get-widgets) 
+  

@@ -1,0 +1,60 @@
+(use "sibilisp/prelude" task maybe-as-task find (concatenate :as conc) map chain traverse select)
+(use "../../utils/filesys/fileops" read-file)
+(use "../../utils/filesys/filepath" filepath)
+
+
+(defconstant **widgets-json** (filepath.lift (+ __dirname "/widgets/widgets.json")))
+(defvar *widgets* (nil))
+
+
+(provide
+  (defun get-widgets-list ()
+    (load-all-widgets **widgets-json**)))
+
+(provide
+  (defun get-widgets-by-tags (...tag-names)
+    (|>
+      (load-all-widgets **widgets-json**)
+      (map (#-> (select (#({tags}) (.some tags (#(tag) (.includes tag-names tag))))))))))
+
+(provide
+  (defun get-widget-by-id (widget-id)
+    (|>
+      (load-all-widgets **widgets-json**)
+      (map (#-> (find (#({id}) (eql? id widget-id)))))
+      (chain maybe-as-task))))
+
+(provide
+  (defun get-widget-by-name (widget-name)
+    (|>
+      (load-all-widgets **widgets-json**)
+      (map (#-> (find (#({name}) (eql? name widget-name)))))
+      (chain maybe-as-task))))
+
+
+
+(defun load-all-widgets (fpath)
+  (if (nil? *widgets*)
+    (|>
+      (read-json fpath)
+      (chain (#(widgets)
+              (traverse (getf widgets 'widgets)
+                        (getf task 'lift)
+                        (#({path})
+                          (load-single-widget (conc (filepath.dir-name fpath)
+                                                    (filepath.lift path)))))))
+      (map (#(widget-jsons)
+            (assign *widgets* widget-jsons)
+            widget-jsons)))
+    (task.of *widgets*)))
+
+(defun load-single-widget (fpath)
+  (|>
+    (read-json fpath)
+    (map (#(widget-data)
+          (hash-merge widget-data (hash :root (.extract (filepath.dir-name fpath))))))))
+
+(defun read-json (fpath)
+  (|>
+    (read-file fpath)
+    (map (#-> (json-from-string)))))

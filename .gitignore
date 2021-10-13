@@ -1,1 +1,6 @@
+# SPECIFIC PROJECT DIRS & FILES, ADD LINES AS NEEDED
 code/node_modules
+code/.dbeaver
+code/.project
+code/.vscode
+code/*.code-workspace

@@ -1,0 +1,20 @@
+{
+  "id": 1,
+  "name": "Accordion",
+  "description": "No Description so far",
+  "templates": [
+    {
+      "name": "default",
+      "example": "example.html",
+      "html": "template.html",
+      "js": "widget.js",
+      "css": "styles.css"
+    }
+  ],
+  "tags": [
+    "interactive", 
+    "content", 
+    "hidden", 
+    "animated"
+  ]
+}

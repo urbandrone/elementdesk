@@ -1,0 +1,22 @@
+(use "sibilisp/prelude" (concatenate :as conc))
+(use "superfine" (h :as h-el) text patch)
+
+(provide
+  (defun h (tag props ...childs)
+    (h-el tag 
+          props 
+          (.reduce childs (#(a, c) ; handles some known specials but basically accepts everything
+                            (cond ((nothing? c) 
+                                   a)
+                                  ((string? c) 
+                                   (conc a (text c)))
+                                  ((number? c) 
+                                   (conc a (text (as-string c))))
+                                  ((function? c) 
+                                   (conc a (c h tag props))) ; pass context info through
+                                  :else (conc a c))
+                            (list))))))
+
+(provide
+  (defun update (old-node new-node)
+    (patch old-node new-node)))

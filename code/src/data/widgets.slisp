@@ -1,0 +1,54 @@
+(use "sibilisp/prelude" task (concatenate :as conc) map chain reduce traverse sequence)
+(use "./repo/repo" get-widgets-list get-widgets-by-tags get-widget-by-id get-widget-by-name)
+(use "../utils/filesys/fileops" read-file)
+(use "../utils/filesys/filepath" filepath)
+
+
+
+(provide
+  (defun get-all ()
+    (|>
+      (get-widgets-list)
+      (chain (#-> (traverse (getf task 'lift) read-templates))))))
+
+(provide
+  (defun get-by-tags (...tags)
+    (|>
+      (get-widgets-by-tags ...tags)
+      (chain (#-> (traverse (getf task 'lift) read-templates))))))
+
+(provide
+  (defun get-by-id (id)
+    (|>
+      (get-widget-by-id id)
+      (chain read-templates))))
+
+(provide
+  (defun get-by-name (name)
+    (|>
+      (get-widget-by-name name)
+      (chain (#-> (map read-templates)
+                  (maybe-as-task))))))
+
+
+
+(defun read-templates (widget-data)
+  (let ((root (filepath.lift (getf widget-data 'root))))
+    (|>
+      (traverse (getf widget-data 'templates)
+                (getf task 'lift)
+                (read-template-resources root))
+      (map (#(template-data) (hash-merge widget-data (hash :template (first template-data))))))))
+
+(defun read-template-resources (root-path)
+  (#({name html css js})
+    (let ((template-html (conc root-path (filepath.lift (+ name "/" html))))
+          (template-css (conc root-path (filepath.lift (+ name "/" css))))
+          (template-js (conc root-path (filepath.lift (+ name "/" js)))))
+      (|>
+        (list
+          (read-file template-html)
+          (read-file template-css)
+          (read-file template-js))
+        (sequence (getf task 'lift))
+        (map (#([html css js]) (hash :&html :&css :&js)))))))

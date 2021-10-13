@@ -1,0 +1,60 @@
+(use "sibilisp/prelude" io map chain)
+(use-all "better-sqlite3" sql3)
+
+
+
+(provide
+  (defun open-connection (fpath)
+    (io (#())
+      (new (sql3.Database (.extract fpath))))))
+
+(provide
+  (defun close-connection (conn)
+    (io (#()
+          (.close conn)
+          (nil)))))
+
+(provide
+  (defun backup-database (fpath)
+    (#(conn)
+      (io (#()
+            (.backup conn (.extract fpath))
+            conn)))))
+
+
+(provide
+  (defun conn-prepare (statement)
+    (#(db)
+      (.prepare db statement))))
+
+(provide
+  (defun conn-transaction (fn)
+    (#(db)
+      (.transaction db fn))))
+
+(provide
+  (defun conn-table (name configs)
+    (#(db)
+      (.table db name configs))))
+
+
+(provide
+  (defun stmt-run (...params)
+    (#(stmt)
+      (send stmt run ...params))))
+
+(provide
+  (defun stmt-get (...params)
+    (#(stmt)
+      (send stmt get ...params))))
+
+(provide
+  (defun stmt-all (...params)
+    (#(stmt)
+      (send stmt all ...params))))
+    
+(provide
+  (defun stmt-bind (...params)
+    (#(stmt)
+      (send stmt bind ...params))))
+

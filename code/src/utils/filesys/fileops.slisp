@@ -1,6 +1,6 @@
 (use "sibilisp/prelude" task map chain show)
-(use-all "fs-extra" :as fse)
-
+;(use-all "fs-extra" fse)
+(require! fse "fs-extra")
 
 
 ;;; GENERAL INTERAL UTILITIES
@@ -10,7 +10,7 @@
 ;;; FILE SYSTEM FUNCTIONS
 (provide
   (defun path-exists? (fpath)
-    (when (not (filepath.is fpath))
+    (when (or (nothing? fpath) (not (method? fpath extract)))
       (error! "Received an invalid filepath: " (show fpath)))
     (task (#(rej res)
             (.path-exists fse
@@ -69,7 +69,7 @@
 
 (provide
   (defun write-file (fpath data mode)
-    (default mode 0o2775)
+    (default mode "0o775")
     (|>
       (is-file? fpath)
       (chain (#(file?)
@@ -119,7 +119,7 @@
 
 (provide
   (defun create-dir (fpath mode)
-    (default mode 0o2775)
+    (default mode "0o775")
     (|> 
       (path-exists? fpath)
       (chain (#(exists?)
@@ -135,7 +135,7 @@
 
 (provide
   (defun create-file (fpath mode)
-    (default mode 0o2775)
+    (default mode "0o775")
     (|> 
       (path-exists? fpath)
       (chain (#(exists?)
