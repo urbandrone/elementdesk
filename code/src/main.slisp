@@ -15,10 +15,10 @@
     (.load-file main-window "index.html")
     (.open-dev-tools (getf main-window 'web-contents))
     (ed/provide-port **com** main-window
-      (('get-widgets) (.get-all be))
-      (('get-widgets-by-tags tags) (.get-by-tags be ...tags))
-      (('get-widget-by-id id) (.get-by-id be id))
-      (('get-widget-by-name name) (.get-by-name be name)))))
+      (('get-widgets) (.get-widgets be))
+      (('get-widgets-by-tags tags) (.get-widgets-by-tags be ...tags))
+      (('get-widget-by-id id) (.get-widget-by-id be id))
+      (('get-widget-by-name name) (.get-widget-by-name be name)))))
 
 (defun init-window ()
   (make-window)

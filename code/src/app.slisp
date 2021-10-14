@@ -1,8 +1,10 @@
-(setf window 
-      'onmessage 
-      (#(event)
-        (.log console event)
-        (when (and (eql? (getf event 'source) window)
-                   (eql? (getf event 'data) 'main-port))
-          (let ((port (getf event 'ports 0)))
-            (.post-message port (hash :get-widgets true))))))
+(include "./src/macros")
+
+(ed/use-port 'main-port
+  ('get-widgets ('ok (widgets) 
+                  (.log console widgets))
+                ('error (exc) 
+                  (.log console exc))))
+
+; timeout!
+; (ed/send-port 'main-port 'get-widgets (nil))

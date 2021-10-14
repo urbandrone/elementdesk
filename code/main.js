@@ -30,17 +30,19 @@ var makeWindow = (function() {
             case "getWidgets":
               return (function() {
                               
-                return be.getAll().runTask((function(err) {
+                return be.getWidgets().runTask((function(err) {
                                   
                   return portM$1.postMessage({
+                    topic: "getWidgets",
                     type: "error",
-                    data: err
+                    payload: err
                   });
                 }), (function(data) {
                                   
                   return portM$1.postMessage({
+                    topic: "getWidgets",
                     type: "ok",
-                    data: data
+                    payload: data
                   });
                 }));
               })();
@@ -48,17 +50,19 @@ var makeWindow = (function() {
             case "getWidgetsByTags":
               return (function(tags) {
                               
-                return be.getByTags(tags).runTask((function(err) {
+                return be.getWidgetsByTags(tags).runTask((function(err) {
                                   
                   return portM$1.postMessage({
+                    topic: "getWidgetsByTags",
                     type: "error",
-                    data: err
+                    payload: err
                   });
                 }), (function(data) {
                                   
                   return portM$1.postMessage({
+                    topic: "getWidgetsByTags",
                     type: "ok",
-                    data: data
+                    payload: data
                   });
                 }));
               })(event$1.data.tags);
@@ -66,17 +70,19 @@ var makeWindow = (function() {
             case "getWidgetById":
               return (function(id) {
                               
-                return be.getById(id).runTask((function(err) {
+                return be.getWidgetById(id).runTask((function(err) {
                                   
                   return portM$1.postMessage({
+                    topic: "getWidgetById",
                     type: "error",
-                    data: err
+                    payload: err
                   });
                 }), (function(data) {
                                   
                   return portM$1.postMessage({
+                    topic: "getWidgetById",
                     type: "ok",
-                    data: data
+                    payload: data
                   });
                 }));
               })(event$1.data.id);
@@ -84,17 +90,19 @@ var makeWindow = (function() {
             case "getWidgetByName":
               return (function(name) {
                               
-                return be.getByName(name).runTask((function(err) {
+                return be.getWidgetByName(name).runTask((function(err) {
                                   
                   return portM$1.postMessage({
+                    topic: "getWidgetByName",
                     type: "error",
-                    data: err
+                    payload: err
                   });
                 }), (function(data) {
                                   
                   return portM$1.postMessage({
+                    topic: "getWidgetByName",
                     type: "ok",
-                    data: data
+                    payload: data
                   });
                 }));
               })(event$1.data.name);

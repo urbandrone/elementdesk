@@ -373,6 +373,70 @@ var sequence = (function(x, lift) {
     throw (new Error(("" + "(sequence) needs the first argument to be a Traversable")))
   }).call(this));
 });
+var find = (function(ls, predicate) {
+    return (!(typeof predicate === "function")
+    ? (function() {
+    throw (new Error(("" + "(find)" + _eArg2_ + "function, got" + show(predicate))))
+  }).call(this)
+    : (Array.isArray(ls) && typeof ls.find === "function")
+    ? maybe.lift(ls.find(predicate))
+    : Array.isArray(ls)
+    ? (function(l, i, m) {
+      
+    (function() {
+      var while$3 = undefined;
+      while ((!(m) && i < l)) {
+        while$3 = (function() {
+          (function() {
+            if (predicate(ls[i])) {
+              return m = ls[i];
+            }
+          }).call(this);
+          return i += 1;
+        }).call(this);
+      }      return while$3;
+    }).call(this);
+    return maybe.lift(m);
+  })(ls.length, 0, null)
+    : (!(null == ls) && ls.constructor === Set)
+    ? (function(x, l, i, m) {
+      
+    (function() {
+      var while$4 = undefined;
+      while ((!(m) && i < l)) {
+        while$4 = (function() {
+          (function() {
+            if (predicate(x[i])) {
+              return m = x[i];
+            }
+          }).call(this);
+          return i += 1;
+        }).call(this);
+      }      return while$4;
+    }).call(this);
+    return maybe.lift(m);
+  })(Array.from(ls), x.length, 0, null)
+    : (function() {
+    throw (new Error(("" + "(find) expects the first argument to be a list or mset")))
+  }).call(this));
+});
+var filter = (function(ls, predicate) {
+    return (!(typeof predicate === "function")
+    ? (function() {
+    throw (new Error(("" + "(filter)" + _eArg2_ + "function, got " + show(predicate))))
+  }).call(this)
+    : Array.isArray(ls)
+    ? ls.filter(predicate)
+    : (!(null == ls) && ls.constructor === Set)
+    ? (function(x) {
+      
+    return (new Set([ ls.filter(predicate) ]));
+  })(Array.from(ls))
+    : (function() {
+    throw (new Error(("" + "(filter) expects the first argument to be a list or mset")))
+  }).call(this));
+});
+var select = filter;
 var coyo = (function() {
     function type$1(value, mapper) {
     var self$1 = Object.create(type$1.prototype);
@@ -1667,6 +1731,12 @@ task.prototype.alt = (function(tTask) {
     }));
   })(this.runTask, tTask.runTask));
 });
+var maybeAsTask$1 = (function(mbe) {
+    return mbe.match({
+    nothing: task.zero,
+    just: task.lift
+  });
+});
 
 var fse = require("fs-extra");
 var pathExists__QUERY = (function(fpath) {
@@ -1820,6 +1890,44 @@ var _widgets_ = null;
 var getWidgetsList = (function() {
     return loadAllWidgets(__widgetsJson__);
 });
+var getWidgetsByTags$1 = (function(tagNames) {
+    var tagNames = Array.prototype.slice.call(arguments, 0);
+
+  return map(loadAllWidgets(__widgetsJson__), (function() {
+      
+    return select(arguments[0], (function(tags$1) {
+          
+      var tags = tags$1.tags;
+    
+      return tags.some((function(tag) {
+              
+        return tagNames.includes(tag);
+      }));
+    }));
+  }));
+});
+var getWidgetById$1 = (function(widgetId) {
+    return chain(map(loadAllWidgets(__widgetsJson__), (function() {
+      
+    return find(arguments[0], (function(id$1) {
+          
+      var id = id$1.id;
+    
+      return id === widgetId;
+    }));
+  })), maybeAsTask$1);
+});
+var getWidgetByName$1 = (function(widgetName) {
+    return chain(map(loadAllWidgets(__widgetsJson__), (function() {
+      
+    return find(arguments[0], (function(name$1) {
+          
+      var name = name$1.name;
+    
+      return name === widgetName;
+    }));
+  })), maybeAsTask$1);
+});
 var loadAllWidgets = (function(fpath) {
     return (function() {
     if (_widgets_ === null) {
@@ -1860,6 +1968,23 @@ var getAll = (function() {
     return traverse(arguments[0], task.lift, readTemplates);
   }));
 });
+var getByTags = (function(tags) {
+    var tags = Array.prototype.slice.call(arguments, 0);
+
+  return chain(getWidgetsByTags$1.apply(this, tags), (function() {
+      
+    return traverse(arguments[0], task.lift, readTemplates);
+  }));
+});
+var getById = (function(id) {
+    return chain(getWidgetById$1(id), readTemplates);
+});
+var getByName = (function(name) {
+    return chain(getWidgetByName$1(name), (function() {
+      
+    return maybeAsTask(map(arguments[0], readTemplates));
+  }));
+});
 var readTemplates = (function(widgetData) {
     return (function(root) {
       
@@ -1895,11 +2020,23 @@ var readTemplateResources = (function(rootPath) {
   });
 });
 
-var getWidgets = (function(fail, ok) {
-    return getAll().runTask(fail, ok);
+var getWidgets = (function() {
+    return getAll();
+});
+var getWidgetsByTags = (function(tags) {
+    return getByTags.apply(this, tags);
+});
+var getWidgetById = (function(id) {
+    return getById(id);
+});
+var getWidgetByName = (function(name) {
+    return getByName(name);
 });
 var appBackend = {
-  getWidgets: getWidgets
+  getWidgets: getWidgets,
+  getWidgetsByTags: getWidgetsByTags,
+  getWidgetById: getWidgetById,
+  getWidgetByName: getWidgetByName
 };
 
 module.exports = appBackend;

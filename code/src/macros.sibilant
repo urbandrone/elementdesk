@@ -1,12 +1,43 @@
 (namespace ed)
 
 ;;; APP MACROS
-(macro make-message (type ...payload)
+(macro send-port (port-id type ...payload)
   (when (< (length payload) 2)
-    (assign payload (ternary (< (length payload) 1) (list) (first payload))))
-  `(hash :type @type :payload @payload))
+    (assign payload (ternary (< (length payload) 1) (list "null") (first payload))))
+  `(scoped
+    (and (getf window @port-id)
+         (.post-message (getf window @port-id)
+                        (hash :type @type
+                              :payload @payload)))))
 
-(macro expose-port ())
+(macro use-port (port-id ...responses)
+  (with-gensyms (port event-win event-port)
+    (defvar sbody (.map responses
+                        (#(r)
+                          (let* ((c (getf r 'contents))
+                                 (topic (first c))
+                                 (types (map (rest c)
+                                             (#(t)
+                                              (let ((type (first (getf t 'contents)))
+                                                    (args (second (getf t 'contents)))
+                                                    (body (.slice (getf t 'contents) 2)))
+                                                `(@type
+                                                  (call (lambda @args ...@body)
+                                                        (getf @event-port 'data 'payload))))))))
+                            `(@topic (switch (getf @event-port 'data 'type)
+                                        ...@types
+                                        (:default (nil))))))))
+    `(setf window
+           'onmessage
+           (#(@event-win)
+            (when (and (eql? (getf @event-win 'source) window)
+                       (eql? (getf @event-win 'data) @port-id))
+              (let ((@port (getf @event-win 'ports 0)))
+                (setf window (quote @port-id) @port)
+                (.onmessage @port (#(@event-port)
+                                    (switch (getf @event-port 'data 'topic)
+                                      ...@sbody
+                                      (:default (nil)))))))))))
 
 
 ;;; MAIN MACROS
@@ -23,12 +54,14 @@
                                       (pipe ...@body 
                                             (.run-task (#(err)
                                                         (.post-message @port-m
-                                                                      (hash :type 'error
-                                                                            :data err)))
+                                                                      (hash :topic @type
+                                                                            :type 'error
+                                                                            :payload err)))
                                                       (#(data)
                                                         (.post-message @port-m
-                                                                      (hash :type 'ok
-                                                                            :data data))))))
+                                                                      (hash :topic @type
+                                                                            :type 'ok
+                                                                            :payload data))))))
                                     ...@vals))))))
     `(let* ((@ports (new @ctor))
             (@port-r (getf @ports 'port1))
