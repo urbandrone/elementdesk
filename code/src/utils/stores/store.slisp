@@ -1,0 +1,50 @@
+(use "sibilisp/prelude" show clone)
+
+(defconstant **store-message** (hash :kind 'message))
+
+(defun create-store-message (msg-type payload)
+  (hash :kind **store-message**
+        :type msg-type
+        :payload (cond ((< (length payload) 1) (nil))
+                       ((< (length payload) 2) (first payload))
+                       :else payload)))
+
+(defun is-store-message? (msg)
+  (and (exists? msg)
+       (eql? (getf msg 'kind) **store-message**)))
+
+
+
+(defun store-proxy (store)
+  (#(msg-type ...data)
+    (.dispatch store (create-store-message msg-type data))))
+    
+
+(defun create-store-base (fold-state-action init-state)
+  (let ((state (ternary (exists? init-state) init-state (nil)))
+        (subs (mset))
+        (idle true)
+        (store (hash)))
+    (setf store 'get-state (#()
+                            (when (not idle)
+                              (error! "(store.get-state) may not be called on updates"))
+                            (clone state)))
+    (setf store 'dispatch (#(msg)
+                            (when (is-store-message? msg)
+                              (when (not idle)
+                                (error! "(store.dispatch) may not be called on updates"))
+                              (assign idle false)
+                              (assign state (fold-state-action state msg))
+                              (each update subs
+                                (update state (store-proxy store)))
+                              (assign idle true)
+                              store)))
+    (setf store 'subscribe (#(update)
+                            (when (not (function? update))
+                              (error! "(store.subscribe) awaits a function, got " (show update)))
+                            (when (not idle)
+                              (error! "(store.subscribe) may not be called during updates"))
+                            (.add subs update)
+                            store))
+    store))
+                              

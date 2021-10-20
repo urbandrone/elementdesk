@@ -5,12 +5,20 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-  <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+  <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'"> -->
+  <!-- <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'"> -->
   <title>ElementDesk</title>
 </head>
 <body>
-  <div id="app" class="app"></div>
+  <div id="app" class="app">
+    <p>
+      Note: All buttons should (at least) result in the Accordion widget.
+    </p>
+    <button type="button" class="all">All Widgets to console</button>
+    <button type="button" class="by-tags">With tag "interactive" to console</button>
+    <button type="button" class="by-name">Named "Accordion" to console</button>
+    <button type="button" class="by-id">Id 1 to console</button>
+  </div>
   <script src="app.js"></script>
 </body>
 </html>

@@ -5,10 +5,10 @@
   (when (< (length payload) 2)
     (assign payload (ternary (< (length payload) 1) (list "null") (first payload))))
   `(scoped
-    (and (getf window @port-id)
-         (.post-message (getf window @port-id)
-                        (hash :type @type
-                              :payload @payload)))))
+    (when (exists? (getf window @port-id))
+      (.post-message (getf window @port-id)
+                     (hash :type @type
+                           :payload @payload)))))
 
 (macro use-port (port-id ...responses)
   (with-gensyms (port event-win event-port)
@@ -33,11 +33,15 @@
             (when (and (eql? (getf @event-win 'source) window)
                        (eql? (getf @event-win 'data) @port-id))
               (let ((@port (getf @event-win 'ports 0)))
-                (setf window (quote @port-id) @port)
-                (.onmessage @port (#(@event-port)
-                                    (switch (getf @event-port 'data 'topic)
-                                      ...@sbody
-                                      (:default (nil)))))))))))
+                (setf window @port-id @port)
+                (setf @port 'onmessage (#(@event-port)
+                                        (switch (getf @event-port 'data 'topic)
+                                          ...@sbody
+                                          (:default (nil)))))
+                (.dispatch-event window (new CustomEvent 'ed-port-setup))))))))
+
+(macro onload (...funcs)
+  `(.add-event-listener window 'ed-port-setup (#() ...@funcs)))
 
 
 ;;; MAIN MACROS
