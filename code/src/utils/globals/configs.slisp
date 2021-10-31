@@ -1,0 +1,34 @@
+(use "sibilisp/prelude" task map)
+(use "../filesys/fileops" read-json-file)
+(use "../filesys/filepath" filepath)
+
+
+
+(defconstant **configs-json (filepath.lift (+ **dirname "/data/configs.json")))
+(defvar *configs* (nil))
+
+
+
+(provide
+  (defun get-db-configs ()
+    (|> 
+      (load-configs **configs-json)
+      (map (#-> (getf 'db))))))
+
+(provide
+  (defun get-widget-configs ()
+    (|>
+      (load-configs **configs-json)
+      (map (#-> (getf 'widgets))))))
+        
+
+
+
+(defun load-configs (fpath)
+  (if (nil? *configs*)
+    (|>
+      (read-json-file fpath)
+      (map (#(configs-jsons)
+            (assign *configs* configs-jsons)
+            configs-jsons)))
+    (task.of *configs*)))

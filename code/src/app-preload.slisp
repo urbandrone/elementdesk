@@ -1,8 +1,8 @@
 (require! 'electron)
-(defconstant **ipc** (getf electron 'ipc-renderer))
+(defconstant **ipc (getf electron 'ipc-renderer))
 
 (let ((on-load (future (ok) (setf window 'onload ok))))
-  (.on **ipc**
+  (.on **ipc
        'send-port
        (#(event)
         (|> on-load

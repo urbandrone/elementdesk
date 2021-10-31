@@ -1,14 +1,16 @@
-(use "sibilisp/prelude" task (concatenate :as conc) map chain reduce traverse sequence)
-(use "./repo/repo" get-widgets-list get-widgets-by-tags get-widget-by-id get-widget-by-name)
+(use "sibilisp/prelude" task (concatenate :as conc) map chain reduce traverse sequence select find maybe-as-task)
+(use "./repo/repo" get-widgets-list)
 (use "../utils/filesys/fileops" read-file)
 (use "../utils/filesys/filepath" filepath)
 
 
 
+(defvar *widgets* (nil))
+
 (provide
   (defun get-all ()
     (|>
-      (get-widgets-list)
+      (get-widgets-all)
       (chain (#-> (traverse (getf task 'lift) read-templates))))))
 
 (provide
@@ -27,9 +29,38 @@
   (defun get-by-name (name)
     (|>
       (get-widget-by-name name)
-      (chain (#-> (map read-templates)
-                  (maybe-as-task))))))
+      (chain read-templates))))
 
+
+
+; get-widgets-all get-widgets-by-tags get-widget-by-id get-widget-by-name
+(defun get-widgets-all ()
+  (if (nil? *widgets*)
+      (|>
+        (get-widgets-list)
+        (map (#(widgets)
+              (assign *widgets* widgets)
+              widgets)))
+      (task.of *widgets*)))
+
+(defun get-widgets-by-tags (...tags)
+  (|>
+    (get-widgets-all)
+    (map (#-> (select (#(widget)
+                        (.some tags (#(t)
+                                      (.includes (getf widget 'tags) t)))))))))
+
+(defun get-widget-by-id (id)
+  (|>
+    (get-widgets-all)
+    (chain (#-> (find (#(w) (eql? (getf w 'id) id)))
+                (maybe-as-task)))))
+
+(defun get-widget-by-name (name)
+  (|>
+    (get-widgets-all)
+    (chain (#-> (find (#(w) (eql? (getf w 'name) name)))
+                (maybe-as-task)))))
 
 
 (defun read-templates (widget-data)

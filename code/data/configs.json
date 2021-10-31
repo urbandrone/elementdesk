@@ -1,0 +1,11 @@
+{
+  "db": {
+    "file": "data/db.sqlite3",
+    "user": "",
+    "pass": ""
+  },
+  "widgets": {
+    "file": "data/widgets.json",
+    "data": "widgets/"
+  }
+}

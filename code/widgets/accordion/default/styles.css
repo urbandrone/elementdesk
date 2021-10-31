@@ -1,9 +1,0 @@
-.accordion {
-  margin-block: 2rem;
-}
-.accordion:first-child {
-  margin-block-start: 0;
-}
-.accordion:last-child {
-  margin-block-end: 0;
-}

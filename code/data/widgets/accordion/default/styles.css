@@ -1,0 +1,51 @@
+.ed-accordion {
+  /* 
+    --ed-accordion-margin-y: 2rem;
+    --ed-accordion-bg: inherit;
+    --ed-accordion-icon
+    --ed-accordion-head-bg
+    --ed-accordion-head-color
+    --ed-accordion-head-fontfamily
+    --ed-accordion-head-fontsize
+    --ed-accordion-head-fontweight
+    --ed-accordion-head-fontstyle
+    --ed-accordion-head-fontline
+    --ed-accordion-head-padding-x
+    --ed-accordion-head-padding-y
+    --ed-accordion-body-padding-x
+    --ed-accordion-body-padding-y
+    --ed-accordion-anim-speed
+    --ed-accordion-anim-curve
+    --ed-accordion-anim-delay
+  */
+  margin-block: var(--ed-accordion-margin-y, 2rem);
+  margin-inline: 0;
+  background-color: var(--ed-accordion-bg, inherit);
+}
+.ed-accordion:first-child {
+  margin-block-start: 0;
+}
+.ed-accordion:last-child {
+  margin-block-end: 0;
+}
+
+.ed-accordion_head {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding-block: var(--ed-accordion-head-padding-y, 0.75rem);
+  padding-inline: var(--ed-accordion-head-padding-y, 1rem);
+}
+
+.ed-accordion_icon {}
+
+.ed-accordion_mask {
+  overflow: hidden;
+  height: 0;
+  will-change: height;
+}
+
+.ed-accordion_body {
+  padding-block: var(--ed-accordion-body-padding-y, 0.75rem);
+  padding-inline: var(--ed-accordion-body-padding-x, 1rem);
+}

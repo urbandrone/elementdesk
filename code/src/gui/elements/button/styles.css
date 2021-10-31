@@ -1,0 +1,6 @@
+.ed-button {
+  display: inline-flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+}

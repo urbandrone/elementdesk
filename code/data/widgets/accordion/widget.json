@@ -1,0 +1,41 @@
+{
+  "id": 1,
+  "name": "Accordion",
+  "description": "No Description so far",
+  "templates": [
+    {
+      "name": "default",
+      "example": "example.html",
+      "html": "template.html",
+      "js": "widget.js",
+      "css": {
+        "file": "styles.css",
+        "vars": [
+          "--ed-accordion-margin-y",
+          "--ed-accordion-bg",
+          "--ed-accordion-icon",
+          "--ed-accordion-head-bg",
+          "--ed-accordion-head-color",
+          "--ed-accordion-head-fontfamily",
+          "--ed-accordion-head-fontsize",
+          "--ed-accordion-head-fontweight",
+          "--ed-accordion-head-fontstyle",
+          "--ed-accordion-head-fontline",
+          "--ed-accordion-head-padding-x",
+          "--ed-accordion-head-padding-y",
+          "--ed-accordion-body-padding-x",
+          "--ed-accordion-body-padding-y",
+          "--ed-accordion-anim-speed",
+          "--ed-accordion-anim-curve",
+          "--ed-accordion-anim-delay"
+        ]
+      }
+    }
+  ],
+  "tags": [
+    "interactive", 
+    "content", 
+    "hidden", 
+    "animated"
+  ]
+}

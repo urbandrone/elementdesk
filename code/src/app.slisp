@@ -1,12 +1,21 @@
+(use "./utils/stores/store" (create :as store) action)
+(use "./gui/view" (render :as view))
+(use "./utils/vdom/vdom" (update :as update-vdom))
+
 (include "./src/macros")
 
 ;;; We need a store right here that connects
 ;;; the view code with the results of calling
 ;;; the main port's connections
+(defconstant **store (store (#(state msg)
+                              (switch (getf msg 'type)
+                                ('got-widgets (getf msg 'payload))
+                                (:default state)))))
 
 (ed/use-port 'main-port
   ('get-widgets ('ok (widgets) 
-                  (.log console 'all widgets))
+                  (.log console 'all widgets)
+                  (.dispatch **store (action 'got-widgets widgets)))
                 ('error (exc) 
                   (.log console 'all exc)))
   ('get-widgets-by-tags ('ok (widgets)
@@ -23,20 +32,11 @@
                       (.log console 'by-id exc))))
 
 (ed/onload
-  (let ((btn-all (.query-selector document ".all"))
-        (btn-tags (.query-selector document ".by-tags"))
-        (btn-name (.query-selector document ".by-name"))
-        (btn-id (.query-selector document ".by-id")))
-    (defun on-click-all ()
-      (ed/send-port 'main-port 'get-widgets))
-    (defun on-click-tags ()
-      (ed/send-port 'main-port 'get-widgets-by-tags "interactive"))
-    (defun on-click-name ()
-      (ed/send-port 'main-port 'get-widget-by-name "Accordion"))
-    (defun on-click-id ()
-      (ed/send-port 'main-port 'get-widget-by-id 1))
-    (.add-event-listener btn-all 'click on-click-all)
-    (.add-event-listener btn-tags 'click on-click-tags)
-    (.add-event-listener btn-name 'click on-click-name)
-    (.add-event-listener btn-id 'click on-click-id)))
+  (let ((app-node (.query-selector document "#app"))
+        (new-node (nil)))
+    (defun render (state)
+      (assign new-node (view state (#(msg) (.dispatch **store msg))))
+      (assign app-node (update-vdom app-node new-node)))
+    (.subscribe **store render)
+    (ed/send-port 'main-port 'get-widgets)))
                                   

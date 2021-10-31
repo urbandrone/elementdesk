@@ -52,7 +52,7 @@
                           (let* ((type (first (getf (first (getf r 'contents)) 'contents)))
                                  (args (rest (getf (first (getf r 'contents)) 'contents)))
                                  (body (rest (getf r 'contents)))
-                                 (vals (map args (#(a) `(getf @event 'data (quote @a))))))
+                                 (vals (map args (#(a) `(getf @event 'data 'payload)))))
                             `(@type 
                               (call (#(...@args)
                                       (pipe ...@body 

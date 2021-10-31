@@ -1,0 +1,24 @@
+(use "../../utils/vdom/vdom" h)
+
+
+(defconstant **button-defaults (hash :type "button"
+                                     :disabled false
+                                     :class "ed-button"))
+
+
+(provide
+  (defun button (text props handler)
+    (when (function? props)
+      (assign handler props)
+      (assign props (hash)))
+    (h 'button 
+       (hash-merge **button-defaults props (hash :onclick handler))
+       (as-string text))))
+
+(provide
+  (defun button-submit (text props handler)
+    (button text (hash-merge props (hash :type "submit")) handler)))
+
+(provide
+  (defun button-reset (text props handler)
+    (button text (hash-merge props (hash :type "reset")) handler)))

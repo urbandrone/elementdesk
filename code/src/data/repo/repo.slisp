@@ -1,60 +1,38 @@
-(use "sibilisp/prelude" task maybe-as-task find (concatenate :as conc) map chain traverse select)
-(use "../../utils/filesys/fileops" read-file)
+(use "sibilisp/prelude" task (concatenate :as conc) map chain traverse)
+(use "../../utils/filesys/fileops" read-json-file)
 (use "../../utils/filesys/filepath" filepath)
+(use "../../utils/globals/configs" get-widget-configs)
 
-
-(defconstant **widgets-json** (filepath.lift (+ __dirname "/widgets/widgets.json")))
-(defvar *widgets* (nil))
 
 
 (provide
   (defun get-widgets-list ()
-    (load-all-widgets **widgets-json**)))
-
-(provide
-  (defun get-widgets-by-tags (...tag-names)
-    (|>
-      (load-all-widgets **widgets-json**)
-      (map (#-> (select (#({tags}) (.some tags (#(tag) (.includes tag-names tag))))))))))
-
-(provide
-  (defun get-widget-by-id (widget-id)
-    (|>
-      (load-all-widgets **widgets-json**)
-      (map (#-> (find (#({id}) (eql? id widget-id)))))
-      (chain maybe-as-task))))
-
-(provide
-  (defun get-widget-by-name (widget-name)
-    (|>
-      (load-all-widgets **widgets-json**)
-      (map (#-> (find (#({name}) (eql? name widget-name)))))
-      (chain maybe-as-task))))
+    (|> 
+      (get-widget-configs)
+      (map filepath-widgets)
+      (chain load-all-widgets))))
 
 
+
+(defun filepath-widgets (configs)
+  (hash-merge configs
+              (hash :json (filepath.lift (+ **dirname "/" (getf configs 'file)))
+                    :root (filepath.lift (getf configs 'data)))))
 
 (defun load-all-widgets (fpath)
-  (if (nil? *widgets*)
-    (|>
-      (read-json fpath)
-      (chain (#(widgets)
-              (traverse (getf widgets 'widgets)
-                        (getf task 'lift)
-                        (#({path})
-                          (load-single-widget (conc (filepath.dir-name fpath)
-                                                    (filepath.lift path)))))))
-      (map (#(widget-jsons)
-            (assign *widgets* widget-jsons)
-            widget-jsons)))
-    (task.of *widgets*)))
+  (|>
+    (read-json-file (getf fpath 'json))
+    (chain (#(widgets)
+            (traverse (getf widgets 'widgets)
+                      (getf task 'lift)
+                      (#(widget)
+                        (load-single-widget 
+                          (conc (filepath.dir-name (getf fpath 'json))
+                                (conc (getf fpath 'root)
+                                      (filepath.lift (getf widget 'path)))))))))))
 
 (defun load-single-widget (fpath)
   (|>
-    (read-json fpath)
+    (read-json-file fpath)
     (map (#(widget-data)
           (hash-merge widget-data (hash :root (.extract (filepath.dir-name fpath))))))))
-
-(defun read-json (fpath)
-  (|>
-    (read-file fpath)
-    (map (#-> (json-from-string)))))

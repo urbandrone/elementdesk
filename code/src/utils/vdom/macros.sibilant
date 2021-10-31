@@ -1,0 +1,13 @@
+(namespace ed)
+
+
+
+(macro define-nodes (...nodes)
+  (let ((m-defs (.map nodes 
+                      (#(node)
+                        (with-gensyms (props childs) 
+                          `(defun @node (@props @childs)
+                            (assign @childs (.call (getf Array 'prototype 'slice) arguments 1)) 
+                            (h (quote @node) @props @childs)))))))
+      m-defs))
+                                  

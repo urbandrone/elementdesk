@@ -55,10 +55,8 @@
          (error! "(filepath.lte): Cannot compare with non-filepath objects"))
         :else (or (and (not (getf this 'is-abs?))
                        (getf fpath 'is-abs?))
-                  (and (eql? (getf this 'is-abs?)
-                             (getf fpath 'is-abs?))
-                       (eql? (getf this 'path)
-                             (getf fpath 'path))))))
+                  (eql? (getf this 'is-abs?)
+                        (getf fpath 'is-abs?)))))
 
 (defmethod filepath gt (fpath)
   (cond ((not (filepath.is fpath))
@@ -71,8 +69,8 @@
          (error! "(filepath.gte): Cannot compare with non-filepath objects"))
         :else (or (and (not (getf fpath 'is-abs?))
                        (getf this 'is-abs?))
-                  (and (not (getf this 'is-abs?))
-                       (getf fpath 'is-abs?)))))
+                  (eql? (getf this 'is-abs?)
+                        (getf fpath 'is-abs?)))))
                 
 (defmethod filepath concat (fpath)
   (cond ((not (filepath.is fpath))

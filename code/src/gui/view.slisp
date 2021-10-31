@@ -1,0 +1,12 @@
+(use "../utils/vdom/vdom" h)
+;; import pages
+
+(include "./src/utils/vdom/macros")
+
+(ed/define-nodes :div :p :h1)
+
+(provide
+  (defun render (state emit)
+    (:div (hash :id "app")
+      (:h1 (hash) "Welcome to ElementDesk!")
+      (:p (hash) (+ "You can choose from " (length state) " Widgets.")))))

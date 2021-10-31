@@ -68,6 +68,12 @@
                   (task.of "")))))))
 
 (provide
+  (defun read-json-file (fpath)
+    (|>
+      (read-file fpath)
+      (map (#-> (json-from-string))))))
+
+(provide
   (defun write-file (fpath data mode)
     (default mode "0o775")
     (|>

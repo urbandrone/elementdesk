@@ -1,5 +1,5 @@
 {
-  "root": "widgets/",
+  "root": "data/widgets/",
   "widgets": [
     {
       "id": 1,

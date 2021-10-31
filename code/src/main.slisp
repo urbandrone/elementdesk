@@ -1,41 +1,41 @@
 (require! 'electron 'path)
 (require! be "./backend")
-(defconstant **app** (getf electron 'app)
-             **com** (getf electron 'MessageChannelMain)
-             **bw** (getf electron 'BrowserWindow))
+(defconstant **app (getf electron 'app)
+             **com (getf electron 'MessageChannelMain)
+             **bw (getf electron 'BrowserWindow))
 
 (include "./src/macros")
 
 ;;; === ELECTRON SPECIFIC
-(defconstant **opt** (hash :width 800
-                           :height 600
-                           :web-preferences (hash :preload (.join path **dirname "preload.js"))))
+(defconstant **opt (hash :width 800
+                         :height 600
+                         :web-preferences (hash :preload (.join path **dirname "preload.js"))))
 (defun make-window ()
-  (let ((main-window (new **bw** **opt**)))
+  (let ((main-window (new **bw **opt)))
     (.load-file main-window "index.html")
     (.open-dev-tools (getf main-window 'web-contents))
-    (ed/provide-port **com** main-window
+    (ed/provide-port **com main-window
       (('get-widgets) (.get-widgets be))
-      (('get-widgets-by-tags tags) (.get-widgets-by-tags be ...tags))
+      (('get-widgets-by-tags tags) (.get-widgets-by-tags be tags))
       (('get-widget-by-id id) (.get-widget-by-id be id))
       (('get-widget-by-name name) (.get-widget-by-name be name)))))
 
 (defun init-window ()
   (make-window)
-  (.on **app** "activate" on-activate)) 
+  (.on **app "activate" on-activate)) 
                             
 
 (defun on-activate ()
-  (when (eql? 0 (length (.get-all-windows **bw**)))
+  (when (eql? 0 (length (.get-all-windows **bw)))
     (make-window)))
 
 (defun on-closed ()
   (when (not (eql? 'darwin (getf process 'platform)))
-    (.quit **app**)))
+    (.quit **app)))
   
 
-(|> **app**
+(|> **app
     (.when-ready)
     (.then init-window))
 
-(.on **app** "window-all-closed" on-closed)
+(.on **app "window-all-closed" on-closed)

@@ -3,10 +3,10 @@
 var electron = require("electron"),
     path = require("path");
 var be = require("./backend");
-var __app__ = electron.app;
-var __com__ = electron.MessageChannelMain;
-var __bw__ = electron.BrowserWindow;
-var __opt__ = {
+var __app = electron.app;
+var __com = electron.MessageChannelMain;
+var __bw = electron.BrowserWindow;
+var __opt = {
   width: 800,
   height: 600,
   webPreferences: { preload: path.join(__dirname, "preload.js") }
@@ -18,7 +18,7 @@ var makeWindow = (function() {
     mainWindow.webContents.openDevTools();
     return (function() {
           
-      var ports$1 = (new __com__());
+      var ports$1 = (new __com());
       var portR$1 = ports$1.port1;
       var portM$1 = ports$1.port2;
       return (function() {
@@ -65,7 +65,7 @@ var makeWindow = (function() {
                     payload: data
                   });
                 }));
-              })(event$1.data.tags);
+              })(event$1.data.payload);
             
             case "getWidgetById":
               return (function(id) {
@@ -85,7 +85,7 @@ var makeWindow = (function() {
                     payload: data
                   });
                 }));
-              })(event$1.data.id);
+              })(event$1.data.payload);
             
             case "getWidgetByName":
               return (function(name) {
@@ -105,7 +105,7 @@ var makeWindow = (function() {
                     payload: data
                   });
                 }));
-              })(event$1.data.name);
+              })(event$1.data.payload);
             
             default:
               return null;
@@ -116,15 +116,15 @@ var makeWindow = (function() {
         return mainWindow.webContents.postMessage("sendPort", null, [ portR$1 ]);
       })();
     }).call(this);
-  })((new __bw__(__opt__)));
+  })((new __bw(__opt)));
 });
 var initWindow = (function() {
     makeWindow();
-  return __app__.on("activate", onActivate);
+  return __app.on("activate", onActivate);
 });
 var onActivate = (function() {
     return (function() {
-    if (0 === __bw__.getAllWindows().length) {
+    if (0 === __bw.getAllWindows().length) {
       return makeWindow();
     }
   }).call(this);
@@ -132,9 +132,9 @@ var onActivate = (function() {
 var onClosed = (function() {
     return (function() {
     if (!("darwin" === process.platform)) {
-      return __app__.quit();
+      return __app.quit();
     }
   }).call(this);
 });
-__app__.whenReady().then(initWindow);
-__app__.on("window-all-closed", onClosed);
+__app.whenReady().then(initWindow);
+__app.on("window-all-closed", onClosed);

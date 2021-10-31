@@ -6,7 +6,7 @@ function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'defau
 
 var pth__default = /*#__PURE__*/_interopDefaultLegacy(pth);
 
-// sibilispPrelude// -// MIT;
+// prelude;
 var _eNoValue_ = "E_NO_VALUE";
 var _eGuard_ = " guards agains (nil) and (void) values, got";
 var _eArg1_ = " expects argument 1 to be a ";
@@ -437,20 +437,88 @@ var filter = (function(ls, predicate) {
   }).call(this));
 });
 var select = filter;
-var coyo = (function() {
-    function type$1(value, mapper) {
-    var self$1 = Object.create(type$1.prototype);
+var lens_ = (function() {
+    var sumtype$1 = Object.create(null);
+  sumtype$1.prototype = { __sibilispType__: sumtype$1 };
+  sumtype$1.lval = function lval(value) {
+    var self$1 = Object.create(sumtype$1.prototype);
     var argCount$1 = arguments.length;
     (function() {
-      if (!(argCount$1 === 2)) {
+      if (!(argCount$1 === 1)) {
+        return (function() {
+          throw (new Error(("" + "Tagged constructor " + lens_ + "." + lval + "expects " + 1 + " arguments but got " + argCount$1)))
+        }).call(this);
+      }
+    }).call(this);
+    self$1.value = value;
+    self$1.constructor = lval;
+    self$1.__sibilispTags__ = [ "value" ];
+    return self$1;
+  };  sumtype$1.lconst = function lconst(value) {
+    var self$2 = Object.create(sumtype$1.prototype);
+    var argCount$2 = arguments.length;
+    (function() {
+      if (!(argCount$2 === 1)) {
+        return (function() {
+          throw (new Error(("" + "Tagged constructor " + lens_ + "." + lconst + "expects " + 1 + " arguments but got " + argCount$2)))
+        }).call(this);
+      }
+    }).call(this);
+    self$2.value = value;
+    self$2.constructor = lconst;
+    self$2.__sibilispTags__ = [ "value" ];
+    return self$2;
+  };  sumtype$1.prototype.match = (function(ctors) {
+      
+    var self = this,
+        name = self.constructor.name,
+        ctor = ctors[name],
+        keys = self.__sibilispTags__;
+    return (function() {
+      if (typeof ctor === "function") {
+        return ctor.apply(self, keys.map((function(key) {
+                  
+          return self[key];
+        })));
+      } else {
+        return (function() {
+          throw (new Error(("" + ".match :: Cannot find " + name + " in patterns " + ctors)))
+        }).call(this);
+      }
+    }).call(this);
+  });
+  sumtype$1.is = (function(x) {
+      
+    return (!(null == x) && x.__sibilispType__ === sumtype$1);
+  });
+  return sumtype$1;
+}).call(undefined);
+lens_.prototype.map = (function(f) {
+    return this.match({
+    lval: (function(v) {
+          
+      return lens_.lval(f(v));
+    }),
+    lconst: (function(v) {
+          
+      return lens_.lconst(v);
+    })
+  });
+});
+var coyo = (function() {
+    function type$1(value, mapper) {
+    var self$3 = Object.create(type$1.prototype);
+    var argCount$3 = arguments.length;
+    (function() {
+      if (!(argCount$3 === 2)) {
         return (function() {
           throw (new Error(("" + "coyo" + " received invalid number of arguments.")))
         }).call(this);
       }
     }).call(this);
-    self$1.value = value;
-    self$1.mapper = mapper;
-    return self$1;
+    self$3.value = value;
+    self$3.mapper = mapper;
+    return self$3;
   }  type$1.is = (function(x$1) {
       
     return x$1 instanceof type$1;
@@ -528,17 +596,17 @@ coyo.prototype.reduce = (function(reducer, seed) {
 });
 var io = (function() {
     function type$2(unsafePerform) {
-    var self$2 = Object.create(type$2.prototype);
-    var argCount$2 = arguments.length;
+    var self$4 = Object.create(type$2.prototype);
+    var argCount$4 = arguments.length;
     (function() {
-      if (!(argCount$2 === 1)) {
+      if (!(argCount$4 === 1)) {
         return (function() {
           throw (new Error(("" + "io" + " received invalid number of arguments.")))
         }).call(this);
       }
     }).call(this);
-    self$2.unsafePerform = unsafePerform;
-    return self$2;
+    self$4.unsafePerform = unsafePerform;
+    return self$4;
   }  type$2.is = (function(x$2) {
       
     return x$2 instanceof type$2;
@@ -676,36 +744,36 @@ io.prototype.runIo = (function(arg) {
     return this.unsafePerform(arg);
 });
 var maybe = (function() {
-    var sumtype$1 = Object.create(null);
-  sumtype$1.prototype = { __sibilispType__: sumtype$1 };
-  sumtype$1.nothing = function nothing() {
-    var self$3 = Object.create(sumtype$1.prototype);
-    var argCount$3 = arguments.length;
+    var sumtype$2 = Object.create(null);
+  sumtype$2.prototype = { __sibilispType__: sumtype$2 };
+  sumtype$2.nothing = function nothing() {
+    var self$5 = Object.create(sumtype$2.prototype);
+    var argCount$5 = arguments.length;
     (function() {
-      if (!(argCount$3 === 0)) {
+      if (!(argCount$5 === 0)) {
         return (function() {
-          throw (new Error(("" + "Tagged constructor " + maybe + "." + nothing + "expects " + 0 + " arguments but got " + argCount$3)))
+          throw (new Error(("" + "Tagged constructor " + maybe + "." + nothing + "expects " + 0 + " arguments but got " + argCount$5)))
         }).call(this);
       }
     }).call(this);
-    self$3.constructor = nothing;
-    self$3.__sibilispTags__ = [];
-    return self$3;
-  };  sumtype$1.just = function just(value) {
-    var self$4 = Object.create(sumtype$1.prototype);
-    var argCount$4 = arguments.length;
+    self$5.constructor = nothing;
+    self$5.__sibilispTags__ = [];
+    return self$5;
+  };  sumtype$2.just = function just(value) {
+    var self$6 = Object.create(sumtype$2.prototype);
+    var argCount$6 = arguments.length;
     (function() {
-      if (!(argCount$4 === 1)) {
+      if (!(argCount$6 === 1)) {
         return (function() {
-          throw (new Error(("" + "Tagged constructor " + maybe + "." + just + "expects " + 1 + " arguments but got " + argCount$4)))
+          throw (new Error(("" + "Tagged constructor " + maybe + "." + just + "expects " + 1 + " arguments but got " + argCount$6)))
         }).call(this);
       }
     }).call(this);
-    self$4.value = value;
-    self$4.constructor = just;
-    self$4.__sibilispTags__ = [ "value" ];
-    return self$4;
-  };  sumtype$1.prototype.match = (function(ctors) {
+    self$6.value = value;
+    self$6.constructor = just;
+    self$6.__sibilispTags__ = [ "value" ];
+    return self$6;
+  };  sumtype$2.prototype.match = (function(ctors) {
       
     var self = this,
         name = self.constructor.name,
@@ -724,11 +792,11 @@ var maybe = (function() {
       }
     }).call(this);
   });
-  sumtype$1.is = (function(x) {
+  sumtype$2.is = (function(x) {
       
-    return (!(null == x) && x.__sibilispType__ === sumtype$1);
+    return (!(null == x) && x.__sibilispType__ === sumtype$2);
   });
-  return sumtype$1;
+  return sumtype$2;
 }).call(undefined);
 maybe.of = (function(value) {
     return maybe.just(value);
@@ -971,37 +1039,37 @@ maybe.prototype.sequence = (function(lift) {
     : this.traverse(lift, identity));
 });
 var either = (function() {
-    var sumtype$2 = Object.create(null);
-  sumtype$2.prototype = { __sibilispType__: sumtype$2 };
-  sumtype$2.left = function left(error) {
-    var self$6 = Object.create(sumtype$2.prototype);
-    var argCount$6 = arguments.length;
+    var sumtype$3 = Object.create(null);
+  sumtype$3.prototype = { __sibilispType__: sumtype$3 };
+  sumtype$3.left = function left(error) {
+    var self$8 = Object.create(sumtype$3.prototype);
+    var argCount$8 = arguments.length;
     (function() {
-      if (!(argCount$6 === 1)) {
+      if (!(argCount$8 === 1)) {
         return (function() {
-          throw (new Error(("" + "Tagged constructor " + either + "." + left + "expects " + 1 + " arguments but got " + argCount$6)))
+          throw (new Error(("" + "Tagged constructor " + either + "." + left + "expects " + 1 + " arguments but got " + argCount$8)))
         }).call(this);
       }
     }).call(this);
-    self$6.error = error;
-    self$6.constructor = left;
-    self$6.__sibilispTags__ = [ "error" ];
-    return self$6;
-  };  sumtype$2.right = function right(value) {
-    var self$7 = Object.create(sumtype$2.prototype);
-    var argCount$7 = arguments.length;
+    self$8.error = error;
+    self$8.constructor = left;
+    self$8.__sibilispTags__ = [ "error" ];
+    return self$8;
+  };  sumtype$3.right = function right(value) {
+    var self$9 = Object.create(sumtype$3.prototype);
+    var argCount$9 = arguments.length;
     (function() {
-      if (!(argCount$7 === 1)) {
+      if (!(argCount$9 === 1)) {
         return (function() {
-          throw (new Error(("" + "Tagged constructor " + either + "." + right + "expects " + 1 + " arguments but got " + argCount$7)))
+          throw (new Error(("" + "Tagged constructor " + either + "." + right + "expects " + 1 + " arguments but got " + argCount$9)))
         }).call(this);
       }
     }).call(this);
-    self$7.value = value;
-    self$7.constructor = right;
-    self$7.__sibilispTags__ = [ "value" ];
-    return self$7;
-  };  sumtype$2.prototype.match = (function(ctors) {
+    self$9.value = value;
+    self$9.constructor = right;
+    self$9.__sibilispTags__ = [ "value" ];
+    return self$9;
+  };  sumtype$3.prototype.match = (function(ctors) {
       
     var self = this,
         name = self.constructor.name,
@@ -1020,11 +1088,11 @@ var either = (function() {
       }
     }).call(this);
   });
-  sumtype$2.is = (function(x) {
+  sumtype$3.is = (function(x) {
       
-    return (!(null == x) && x.__sibilispType__ === sumtype$2);
+    return (!(null == x) && x.__sibilispType__ === sumtype$3);
   });
-  return sumtype$2;
+  return sumtype$3;
 }).call(undefined);
 either.of = (function(value) {
     return either.right(value);
@@ -1259,37 +1327,37 @@ either.prototype.sequence = (function(lift) {
     : this.traverse(lift, identity));
 });
 var proof = (function() {
-    var sumtype$3 = Object.create(null);
-  sumtype$3.prototype = { __sibilispType__: sumtype$3 };
-  sumtype$3.falsy = function falsy(errors) {
-    var self$9 = Object.create(sumtype$3.prototype);
-    var argCount$9 = arguments.length;
+    var sumtype$4 = Object.create(null);
+  sumtype$4.prototype = { __sibilispType__: sumtype$4 };
+  sumtype$4.falsy = function falsy(errors) {
+    var self$11 = Object.create(sumtype$4.prototype);
+    var argCount$11 = arguments.length;
     (function() {
-      if (!(argCount$9 === 1)) {
+      if (!(argCount$11 === 1)) {
         return (function() {
-          throw (new Error(("" + "Tagged constructor " + proof + "." + falsy + "expects " + 1 + " arguments but got " + argCount$9)))
+          throw (new Error(("" + "Tagged constructor " + proof + "." + falsy + "expects " + 1 + " arguments but got " + argCount$11)))
         }).call(this);
       }
     }).call(this);
-    self$9.errors = errors;
-    self$9.constructor = falsy;
-    self$9.__sibilispTags__ = [ "errors" ];
-    return self$9;
-  };  sumtype$3.truthy = function truthy(value) {
-    var self$10 = Object.create(sumtype$3.prototype);
-    var argCount$10 = arguments.length;
+    self$11.errors = errors;
+    self$11.constructor = falsy;
+    self$11.__sibilispTags__ = [ "errors" ];
+    return self$11;
+  };  sumtype$4.truthy = function truthy(value) {
+    var self$12 = Object.create(sumtype$4.prototype);
+    var argCount$12 = arguments.length;
     (function() {
-      if (!(argCount$10 === 1)) {
+      if (!(argCount$12 === 1)) {
         return (function() {
-          throw (new Error(("" + "Tagged constructor " + proof + "." + truthy + "expects " + 1 + " arguments but got " + argCount$10)))
+          throw (new Error(("" + "Tagged constructor " + proof + "." + truthy + "expects " + 1 + " arguments but got " + argCount$12)))
         }).call(this);
       }
     }).call(this);
-    self$10.value = value;
-    self$10.constructor = truthy;
-    self$10.__sibilispTags__ = [ "value" ];
-    return self$10;
-  };  sumtype$3.prototype.match = (function(ctors) {
+    self$12.value = value;
+    self$12.constructor = truthy;
+    self$12.__sibilispTags__ = [ "value" ];
+    return self$12;
+  };  sumtype$4.prototype.match = (function(ctors) {
       
     var self = this,
         name = self.constructor.name,
@@ -1308,11 +1376,11 @@ var proof = (function() {
       }
     }).call(this);
   });
-  sumtype$3.is = (function(x) {
+  sumtype$4.is = (function(x) {
       
-    return (!(null == x) && x.__sibilispType__ === sumtype$3);
+    return (!(null == x) && x.__sibilispType__ === sumtype$4);
   });
-  return sumtype$3;
+  return sumtype$4;
 }).call(undefined);
 proof.of = (function(value) {
     return proof.truthy(value);
@@ -1518,17 +1586,17 @@ proof.prototype.alt = (function(tProof) {
 });
 var task = (function() {
     function type$6(runTask) {
-    var self$12 = Object.create(type$6.prototype);
-    var argCount$12 = arguments.length;
+    var self$14 = Object.create(type$6.prototype);
+    var argCount$14 = arguments.length;
     (function() {
-      if (!(argCount$12 === 1)) {
+      if (!(argCount$14 === 1)) {
         return (function() {
           throw (new Error(("" + "task" + " received invalid number of arguments.")))
         }).call(this);
       }
     }).call(this);
-    self$12.runTask = runTask;
-    return self$12;
+    self$14.runTask = runTask;
+    return self$14;
   }  type$6.is = (function(x$6) {
       
     return x$6 instanceof type$6;
@@ -1731,7 +1799,7 @@ task.prototype.alt = (function(tTask) {
     }));
   })(this.runTask, tTask.runTask));
 });
-var maybeAsTask$1 = (function(mbe) {
+var maybeAsTask = (function(mbe) {
     return mbe.match({
     nothing: task.zero,
     just: task.lift
@@ -1781,6 +1849,12 @@ var readFile = (function(fpath) {
         return task.of("");
       }
     }).call(this);
+  }));
+});
+var readJsonFile = (function(fpath) {
+    return map(readFile(fpath), (function() {
+      
+    return JSON.parse(arguments[0]);
   }));
 });
 
@@ -1856,7 +1930,7 @@ filepath.prototype.lte = (function(fpath) {
     ? (function() {
     throw (new Error(("" + "(filepath.lte): Cannot compare with non-filepath objects")))
   }).call(this)
-    : ((!(this.isAbs__QUERY) && fpath.isAbs__QUERY) || (this.isAbs__QUERY === fpath.isAbs__QUERY && this.path === fpath.path)));
+    : ((!(this.isAbs__QUERY) && fpath.isAbs__QUERY) || this.isAbs__QUERY === fpath.isAbs__QUERY));
 });
 filepath.prototype.gt = (function(fpath) {
     return (!(filepath.is(fpath))
@@ -1870,7 +1944,7 @@ filepath.prototype.gte = (function(fpath) {
     ? (function() {
     throw (new Error(("" + "(filepath.gte): Cannot compare with non-filepath objects")))
   }).call(this)
-    : ((!(fpath.isAbs__QUERY) && this.isAbs__QUERY) || (!(this.isAbs__QUERY) && fpath.isAbs__QUERY)));
+    : ((!(fpath.isAbs__QUERY) && this.isAbs__QUERY) || this.isAbs__QUERY === fpath.isAbs__QUERY));
 });
 filepath.prototype.concat = (function(fpath) {
     return (!(filepath.is(fpath))
@@ -1885,85 +1959,56 @@ filepath.prototype.extract = (function() {
     return this.path;
 });
 
-var __widgetsJson__ = filepath.lift((__dirname + "/widgets/widgets.json"));
-var _widgets_ = null;
-var getWidgetsList = (function() {
-    return loadAllWidgets(__widgetsJson__);
-});
-var getWidgetsByTags$1 = (function(tagNames) {
-    var tagNames = Array.prototype.slice.call(arguments, 0);
-
-  return map(loadAllWidgets(__widgetsJson__), (function() {
+var __configsJson = filepath.lift((__dirname + "/data/configs.json"));
+var _configs_ = null;
+var getWidgetConfigs = (function() {
+    return map(loadConfigs(__configsJson), (function() {
       
-    return select(arguments[0], (function(tags$1) {
-          
-      var tags = tags$1.tags;
-    
-      return tags.some((function(tag) {
-              
-        return tagNames.includes(tag);
-      }));
-    }));
+    return arguments[0].widgets;
   }));
 });
-var getWidgetById$1 = (function(widgetId) {
-    return chain(map(loadAllWidgets(__widgetsJson__), (function() {
-      
-    return find(arguments[0], (function(id$1) {
-          
-      var id = id$1.id;
-    
-      return id === widgetId;
-    }));
-  })), maybeAsTask$1);
-});
-var getWidgetByName$1 = (function(widgetName) {
-    return chain(map(loadAllWidgets(__widgetsJson__), (function() {
-      
-    return find(arguments[0], (function(name$1) {
-          
-      var name = name$1.name;
-    
-      return name === widgetName;
-    }));
-  })), maybeAsTask$1);
-});
-var loadAllWidgets = (function(fpath) {
+var loadConfigs = (function(fpath) {
     return (function() {
-    if (_widgets_ === null) {
-      return map(chain(readJson(fpath), (function(widgets) {
+    if (_configs_ === null) {
+      return map(readJsonFile(fpath), (function(configsJsons) {
               
-        return traverse(widgets.widgets, task.lift, (function(path$1) {
-                  
-          var path = path$1.path;
-        
-          return loadSingleWidget(concatenate(filepath.dirName(fpath), filepath.lift(path)));
-        }));
-      })), (function(widgetJsons) {
-              
-        _widgets_ = widgetJsons;
-        return widgetJsons;
+        _configs_ = configsJsons;
+        return configsJsons;
       }));
     } else {
-      return task.of(_widgets_);
+      return task.of(_configs_);
     }
   }).call(this);
 });
+
+var getWidgetsList = (function() {
+    return chain(map(getWidgetConfigs(), filepathWidgets), loadAllWidgets);
+});
+var filepathWidgets = (function(configs) {
+    return Object.assign({  }, configs, {
+    json: filepath.lift((__dirname + "/" + configs.file)),
+    root: filepath.lift(configs.data)
+  });
+});
+var loadAllWidgets = (function(fpath) {
+    return chain(readJsonFile(fpath.json), (function(widgets) {
+      
+    return traverse(widgets.widgets, task.lift, (function(widget) {
+          
+      return loadSingleWidget(concatenate(filepath.dirName(fpath.json), concatenate(fpath.root, filepath.lift(widget.path))));
+    }));
+  }));
+});
 var loadSingleWidget = (function(fpath) {
-    return map(readJson(fpath), (function(widgetData) {
+    return map(readJsonFile(fpath), (function(widgetData) {
       
     return Object.assign({  }, widgetData, { root: filepath.dirName(fpath).extract() });
   }));
 });
-var readJson = (function(fpath) {
-    return map(readFile(fpath), (function() {
-      
-    return JSON.parse(arguments[0]);
-  }));
-});
 
+var _widgets_ = null;
 var getAll = (function() {
-    return chain(getWidgetsList(), (function() {
+    return chain(getWidgetsAll(), (function() {
       
     return traverse(arguments[0], task.lift, readTemplates);
   }));
@@ -1980,9 +2025,51 @@ var getById = (function(id) {
     return chain(getWidgetById$1(id), readTemplates);
 });
 var getByName = (function(name) {
-    return chain(getWidgetByName$1(name), (function() {
+    return chain(getWidgetByName$1(name), readTemplates);
+});
+var getWidgetsAll = (function() {
+    return (function() {
+    if (_widgets_ === null) {
+      return map(getWidgetsList(), (function(widgets) {
+              
+        _widgets_ = widgets;
+        return widgets;
+      }));
+    } else {
+      return task.of(_widgets_);
+    }
+  }).call(this);
+});
+var getWidgetsByTags$1 = (function(tags) {
+    var tags = Array.prototype.slice.call(arguments, 0);
+
+  return map(getWidgetsAll(), (function() {
       
-    return maybeAsTask(map(arguments[0], readTemplates));
+    return select(arguments[0], (function(widget) {
+          
+      return tags.some((function(t) {
+              
+        return widget.tags.includes(t);
+      }));
+    }));
+  }));
+});
+var getWidgetById$1 = (function(id) {
+    return chain(getWidgetsAll(), (function() {
+      
+    return maybeAsTask(find(arguments[0], (function(w) {
+          
+      return w.id === id;
+    })));
+  }));
+});
+var getWidgetByName$1 = (function(name) {
+    return chain(getWidgetsAll(), (function() {
+      
+    return maybeAsTask(find(arguments[0], (function(w) {
+          
+      return w.name === name;
+    })));
   }));
 });
 var readTemplates = (function(widgetData) {

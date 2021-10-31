@@ -2,6 +2,20 @@
 
 (defconstant **store-message** (hash :kind 'message))
 
+
+
+(provide
+  (defun create (reducer)
+    (create-store-base reducer (nil))))
+
+(provide
+  (defun action (msg-type ...payload)
+    (when (< 2 (length payload))
+      (assign payload (ternary (< 1 (length payload)) (nil) (first payload))))
+    (create-store-message msg-type payload)))
+
+
+
 (defun create-store-message (msg-type payload)
   (hash :kind **store-message**
         :type msg-type
